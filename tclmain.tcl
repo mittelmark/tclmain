@@ -81,9 +81,11 @@ proc ::tclmain::parseArgs {} {
             puts "location: [file dirname $stat(location)]"
             exit 0
         }
-        set pattern *_*{.tcl,tm}
+        set pname [regsub -all {::} $stat(package) "_"]
+        set pattern ${pname}_*{.tcl,.tm}
         set files [glob -nocomplain -directory [file dirname $stat(location)] \
                    -types f $pattern]
+        puts $files
         set cmds [list]
         if {[llength $files] > 0} {
              foreach f $files {

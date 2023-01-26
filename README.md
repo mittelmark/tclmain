@@ -11,24 +11,41 @@ The Tcl script `tclmain` will do a similar thing.
 
 Here is an example on how to execute programs or get help pages by a user or developer if a package developer used this facilities by creating several files in his/her package folder. These files `tclmain_xyz.tcl` needs not to be sourced in the `pkgIndex.tcl` file.
 
-* `tclmain` - list all packages which provides tclmain files or where the user has these files in it's own configuration folder
-* `tclmain pkgname` - executes the file `tclmain_run.tcl` within the package directory
-* `tclmain pkgname run` - does the same
-* `tclmain pkgname help` - executes the file  `tclmain_help.tcl` which should provide the help pages for the packages, or get's a hint of how to get see them
-* `tclmain pkgname demo` - executes the file `tclmain_demo.tcl` which could provide a short demo
-* `tclmain pkgname xxx` - executes the file `tclmain_xxx.tcl` and so on, may be this is better implemented as `tclmain pkgname run xxx` so as an command line argument to the `tclmain_run.tcl script`
+* `tclmain` - gives the help message
+* `tclmain -h, --help` - gives the help message
+* `tclmain -m, --module pkgname` - lists the available commands for the package `pkgname`
+* `tclmain -p, --package pkgname` - lists the available commands for the package `pkgname`
+* `tclmain -p pkgname main` - executes the file ending with `_main.tcl` within the package directory
+* `tclmain -p pkgname help` - executes the file ending with  `_help.tcl` which should provide the help pages for the packages, or get's a hint of how to get see them
+* `tclmain -p pkgname demo` - executes the file ending with `_demo.tcl` which could provide a short demo
+* `tclmain -m pkgname xxx` - executes the file ending `_xxx.tcl` and so on, may be this is better implemented as `tclmain pkgname run xxx` so as an command line argument to the `tclmain_run.tcl script`, only three letter commands should be provided
 
-There should be as well a possibility to provide these facilities if you are not having access to the package folders. It can't be assumed that a lot of Tcl packages will offer this functionality at any time soon. In this case you should be able to place these files witin your own configuration folder like `~/.config/tclmain/pkgname` on a Linux/Unix system. That way you can add these facilities to Tcl packages which does not use `tclmain` approach.
+## Config folder 
+
+There should be as well a possibility to provide these facilities if you are
+not having access to the package folders. It can't be assumed that a lot of
+Tcl packages will offer this functionality at any time soon. In this case you
+should be able to place these files witin your own configuration folder like
+`~/.config/tclmain/pkgname_main.tcl` or `~/.config/tclmain/pkgname_demo.tcl`
+on a Linux/Unix system. That way you can add these facilities to Tcl packages
+which does not use the `tclmain` approach. 
+
+Colons in the package name should be replaced in this case with underlines. So
+for the package `canvas::zoom` the filename becomes `canvas_zoom_main.tcl` for
+instance.
 
 ## Tclsh
 
-The Tclsh should provide such an approach using a module/package flag like Python, for instance `tclsh -m pkgname` or `tclsh -p pkgname`
+The Tclsh should provide such an approach using a module/package flag like
+Python, for instance `tclsh -m pkgname` or `tclsh -p pkgname`
 
 ## Examples
 
-Here a few examples to add this functionality to existing packages. As `tclmain` strips of the `pkgname` argument, the first argument is run in the `argv` list.
+Here a few examples to add this functionality to existing packages. As
+`tclmain` strips of the `pkgname` argument, the first argument is run in the
+`argv` list.
 
-`ctext/tclmain_run.tcl`
+`ctext/ctext_main.tcl`
 
 ```
 
