@@ -85,15 +85,22 @@ proc ::tclmain::parseArgs {} {
         set pattern ${pname}_*{.tcl,.tm}
         set files [glob -nocomplain -directory [file dirname $stat(location)] \
                    -types f $pattern]
-        puts $files
+        set cfiles [glob -nocomplain -directory [file join $::env(HOME) .config tclmain] \
+                    -types f $pattern]
+        foreach f $files {
+            lappend cfiles $f
+        }
+        set files $cfiles
         set cmds [list]
         if {[llength $files] > 0} {
              foreach f $files {
                  set cmd [regsub {.+_([a-z0-9]{2,6}).[tclm]{2,3}} $f "\\1"]
                  if {$cmd in [list help demo main] || [string length $cmd] <= 3} {
-                     set argv0 $f
-                     lappend cmds $cmd
-                     set src($cmd) $f
+                     if {![info exists src($cmd)]} {
+                         set argv0 $f
+                         lappend cmds $cmd
+                         set src($cmd) $f
+                     }
                  }
              }
          }

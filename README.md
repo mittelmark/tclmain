@@ -45,8 +45,24 @@ Here a few examples to add this functionality to existing packages. As
 `tclmain` strips of the `pkgname` argument, the first argument is run in the
 `argv` list.
 
-`ctext/ctext_main.tcl`
+Here is a example file [examples/Markdown_main.tcl](Markdown_main.tcl). Thsi
+file should be placed in the config folder for `tclmain` so on a Unix/Linux system
+here `~/.config/tclmain/Markdown_main.tcl`.
+
+This file using the Markdown library of Tcllib could be then execute like this:
 
 ```
+$  ./tclmain.tcl -m Markdown 
+Missing command for package Markdown.
+Available commands are: main
+$  ./tclmain.tcl -m Markdown main
+Usage: tclmain -m Markdown main mdfile|- ?htmlfile|-?
+       instead of filenames as well - can be used to indicate stdin and stdout
+
+Example:
+   echo '**Hello World!**' |  tclmain -m Markdown main - out.html
+   
+$  echo '**Hello world!**'  | tclmain -m Markdown main -
+<p><strong>Hello world!</strong></p>
 
 ```
