@@ -1,11 +1,11 @@
 # tclmain
 
-Standalone script to run Tcl applications from packages using the - tclmain pkgname - syntax.
+Standalone script to run Tcl applications from packages using the - `tclmain -m pkgname` - syntax.
 
 This Tcl application provides a facility to run Tcl applications, display help pages and show demo applications
-for Tcl packages, similar like the Python `__main__.py` file is doing this in a Python package. 
+for Tcl packages, similar like the Python `__main__.py` file is doing this for a Python package. 
 In Python, if your provide a file `__main__.py` within your package, you can exectute this file directly using the syntax: `python -m pkgname`.
-The Tcl script `tclmain` will do a similar thing.
+The Tcl script `tclmain.tcl` does a similar thing. As usually for standalone scripts scripts the file extension will be removed, I will below use its name as `tclmain`.
 
 ## Installation
 
@@ -80,7 +80,8 @@ $  echo '**Hello world!**'  | tclmain -m Markdown main -
 
 ```
 
-Here an other example create a file `Tk_demo.tcl` with the following content:.
+Here an other example to run the Tk demo. Create a file `Tk_demo.tcl` with the
+following content:.
 
 ```
 #!/usr/bin/env tclsh
@@ -95,6 +96,7 @@ foreach folder $auto_path {
 
 ```
 
+The file is as well available in the repository in the examples section.
 Place this file in your config folder `~/.config/tclmain`. Thereafter you can
 have the following session.
 
@@ -113,8 +115,10 @@ You should then see the following window:
 
 ![](examples/Tk_demo.png)
 
+Obviously you could have the same effect if you would place the files in the config folder
 
 ## TODO's
 
 - main as default mode, but how to distinguis between command and arguments?
-- more examples for the config folder, like tk
+- more examples for the config folder, like Tk demo (done)
+- currently the files in config folder will be evaluated first, what happend if the package developers will then create its own file pkg_name.tcl for instance?
