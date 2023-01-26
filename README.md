@@ -7,6 +7,14 @@ for Tcl packages, similar like the Python `__main__.py` file is doing this in a 
 In Python, if your provide a file `__main__.py` within your package, you can exectute this file directly using the syntax: `python -m pkgname`.
 The Tcl script `tclmain` will do a similar thing.
 
+## Installation
+
+* currently only Linux/Unix systems are supported
+* download the file [tclmain.tcl](tclmain.tcl) (you need to press raw to get the file
+* make it executable using the `chmod` command
+* rename it to `tclmain` and move it to a filder belonging to your `PATH` variable
+* done
+
 ## Examples
 
 Here is an example on how to execute programs or get help pages by a user or developer if a package developer used this facilities by creating several files in his/her package folder. These files `tclmain_xyz.tcl` needs not to be sourced in the `pkgIndex.tcl` file.
