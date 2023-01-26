@@ -115,11 +115,12 @@ proc ::tclmain::parseArgs {} {
                  # command given
                  set cmd [lindex $argv 2]
                  set argv [lrange $argv 3 end]
+                 set ::argv $argv
              }
              if {[info exists src($cmd)]} {
                  # valid command
-                 set argv0 $src($cmd)
-                 source $src($cmd)
+                 set ::argv0 $src($cmd)
+                 uplevel 1 "source $src($cmd)"
              } else {
                  puts "Wrong or missing command for package $stat(package)."
                  puts "Available commands are: [join $cmds ,]"
