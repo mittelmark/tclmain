@@ -11,9 +11,9 @@ The Tcl script `tclmain` will do a similar thing.
 
 * currently only Linux/Unix systems are supported
 * you only need a single file
-* download the file [tclmain.tcl](tclmain.tcl) (you need to press raw to get the file
+* download the file `[tclmain.tcl](tclmain.tcl)` (you need to press raw to get the file)
 * make it executable using the `chmod` command
-* rename it to `tclmain` and move it to a filder belonging to your `PATH` variable
+* rename it to `tclmain` and move it to a folder belonging to your `PATH` variable
 * check the installation by writing `tclmain` in your terminal where you should see the help page
 * done
 
@@ -59,13 +59,16 @@ Here is a example file [examples/Markdown_main.tcl](Markdown_main.tcl). Thsi
 file should be placed in the config folder for `tclmain` so on a Unix/Linux system
 here `~/.config/tclmain/Markdown_main.tcl`.
 
-This file using the Markdown library of Tcllib could be then execute like this:
+This file using the Markdown library of Tcllib and your helper file
+[Markdown_main.tcl](examples/Markdown_main.tcl) which must be placed in `.config/tclmain`.
+You could execute this file then like this:
 
 ```
-$  ./tclmain.tcl -m Markdown 
+
+$  tclmain -m Markdown 
 Missing command for package Markdown.
 Available commands are: main
-$  ./tclmain.tcl -m Markdown main
+$  tclmain -m Markdown main
 Usage: tclmain -m Markdown main mdfile|- ?htmlfile|-?
        instead of filenames as well - can be used to indicate stdin and stdout
 
@@ -76,3 +79,42 @@ $  echo '**Hello world!**'  | tclmain -m Markdown main -
 <p><strong>Hello world!</strong></p>
 
 ```
+
+Here an other example create a file `Tk_demo.tcl` with the following content:.
+
+```
+#!/usr/bin/env tclsh
+
+foreach folder $auto_path {
+    set demo [file join $folder demos widget]
+    if {[file exists $demo]} {
+        source $demo
+        break
+    }
+}
+
+```
+
+Place this file in your config folder `~/.config/tclmain`. Thereafter you can
+have the following session.
+
+```
+$ tclmain -i Tk
+package:  Tk
+version:  8.6.12
+location: /usr/lib64
+$ tclmain -m Tk
+Missing command for package Tk.
+Available commands are: demo
+$ tclmain -m Tk demo
+```
+
+You should then see the following window:
+
+![](examples/Tk_demo.png)
+
+
+## TODO's
+
+- main as default mode, but how to distinguis between command and arguments?
+- more examples for the config folder, like tk
