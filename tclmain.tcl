@@ -1,5 +1,7 @@
 #!/usr/bin/env tclsh
-
+# This file should be named executable using chmod and renamed to tclmain
+# moved thereafter to a folder belonging to your PATH variable
+# 
 #' usage: tclmain [-h] [-m pkgname command ?arg1 arg2 ...?]
 #'                [-i pkgname]
 #' 
