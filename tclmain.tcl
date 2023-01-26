@@ -19,7 +19,7 @@
 #' 
 #' author:                 Detlef Groth, Schwielowsee, Germany
 #'
-#' license:                BSD 
+#' license:                BSD-3-Clause license
 #' 
 
 namespace eval ::tclmain { }
