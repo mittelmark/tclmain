@@ -122,3 +122,8 @@ Obviously you could have the same effect if you would place the files in the con
 - main as default mode, but how to distinguis between command and arguments?
 - more examples for the config folder, like Tk demo (done)
 - currently the files in config folder will be evaluated first, what happend if the package developers will then create its own file pkg_name.tcl for instance?
+
+## Links
+
+- [Tclers Wiki](https://wiki.tcl-lang.org/page/tclmain) - for suggestions and ideas
+- [Issues](https://github.com/mittelmark/tclmain/issues) - do tell bugs and issues
