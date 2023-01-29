@@ -24,7 +24,24 @@
 #' license:                BSD-3-Clause license
 #' 
 
-namespace eval ::tclmain { }
+
+
+namespace eval ::tclmain { 
+    # check if in parent folder or in parent/lib are Tcl packages and
+    # append this folder to the PATH
+    set libdir [file normalize [file join [file dirname [info script]] .. lib]]
+    if {[file exists $libdir] && $libdir ni $::auto_path} {
+        lappend ::auto_path $libdir
+    }
+    
+    set parentdir [file normalize [file join [file dirname [info script]] ..]]
+    
+    set files [glob -nocomplain [file join [file normalize $parentdir] * pkgIndex.tcl]]
+    
+    if {[llength $files] > 0 && $parentdir ni $::auto_path} {
+        lappend ::auto_path $parentdir
+    }
+}
 
 #' ::tclmain::usage filename {all true}
 #' 
