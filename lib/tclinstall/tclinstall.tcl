@@ -4,7 +4,7 @@
 #' title: Install Tcl packages 
 #' author: Detlef Groth, Caputh-Schwielowsee
 #' license: BSD 3
-#' date: <230130.0716>
+#' date: <230130.0727>
 #' ---
 #' 
 #' # NAME
@@ -58,7 +58,8 @@
 #' will copied to the appropiate directories.
 #' 
 #' 
-
+package require Tcl 8.6
+package provide tclinstall 0.1
 namespace eval ::tclinstall { 
     variable script 
     set script [info script]
@@ -205,4 +206,4 @@ proc ::tclinstall::main {argv} {
     }
 }
 
-::tclinstall::main $argv
+
