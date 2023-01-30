@@ -4,7 +4,7 @@
 #' title: Install Tcl packages 
 #' author: Detlef Groth, Caputh-Schwielowsee
 #' license: BSD 3
-#' date: <230130.0727>
+#' date: <230130.0939>
 #' ---
 #' 
 #' # NAME
@@ -16,10 +16,10 @@
 #' The Tcl application *tclinstall* installs Tcl packages into standard locations.
 #' If the users then uses the application *tclmain* to start its Tcl scripts they
 #' package should be automatically in the Tcl package path. The application requires
-#' a file setup.tcl to to work reliable. In most cases however if given only a
+#' a file setup.tcl to work reliable. In most cases however if given only a
 #' directory name it should be as well possible to copy this directory into the
 #' right folder. Package files can be as well in zip-archives where for the required
-#' files, setup.tcl or pkgIndex.tcl is searched then automatically.. 
+#' files, setup.tcl or pkgIndex.tcl is searched then automatically. 
 #' 
 #' # USAGE
 #' 
@@ -42,7 +42,7 @@
 #' Here a setup.tcl file:
 #' 
 #' ```
-#' # setup file for tclinstaller.tcl
+#' # setup file for tclinstall package
 #' 
 #' array set setup {
 #'   name kroki4tcl
@@ -52,12 +52,21 @@
 #'   license {BSD 3.0}
 #'   include {kroki4tcl/*.tcl kroki4tcl/kroki4tcl.md}
 #' }
+#' 
+#' if {$::argv0 eq [info script]} {
+#'     # making it a standalone install script
+#'     package require tclinstall
+#'     set ::argv0 "tclinstall"
+#'     tclinstall::install [info script]
+#' }
 #' ```
 #'
-#' If no `setup.tcl` is found the folder which contain pkgIndex.tcl files simply
+#' TODO: If no `setup.tcl` is found the folder which contain pkgIndex.tcl files simply
 #' will copied to the appropiate directories.
 #' 
+#' Author and License: Detlef Groth, Schwielowsee, Germany
 #' 
+
 package require Tcl 8.6
 package provide tclinstall 0.1
 namespace eval ::tclinstall { 
@@ -85,6 +94,9 @@ proc ::tclinstall::help {} {
             }
             if {$flag} {
                 set nline [regsub {^#' ?} $line ""]
+                if {![regexp {^#} $nline]} {
+                    set nline "  $nline"
+                }
                 puts $nline
             }
         }
