@@ -3,7 +3,8 @@
 #' ---
 #' title: Install Tcl packages 
 #' author: Detlef Groth, Caputh-Schwielowsee
-#' date: <230130.0709>
+#' license: BSD 3
+#' date: <230130.0716>
 #' ---
 #' 
 #' # NAME
@@ -56,9 +57,6 @@
 #' If no `setup.tcl` is found the folder which contain pkgIndex.tcl files simply
 #' will copied to the appropiate directories.
 #' 
-#' # AUTHOR AND LICENSE
-#' 
-#' Detlef Groth, Schwielowsee, Germany, BSD 3
 #' 
 
 namespace eval ::tclinstall { 
