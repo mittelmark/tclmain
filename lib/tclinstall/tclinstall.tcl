@@ -4,7 +4,7 @@
 #' title: Install Tcl packages 
 #' author: Detlef Groth, Caputh-Schwielowsee
 #' license: BSD 3
-#' date: <230130.0939>
+#' date: <230131.0651>
 #' ---
 #' 
 #' # NAME
@@ -67,6 +67,14 @@
 #' Author and License: Detlef Groth, Schwielowsee, Germany
 #' 
 
+# Space required to stop help page
+#' 
+#' # API
+#' 
+#' package tclinstall - install tclpackages using Tcl setup files
+#' 
+#' ## COMMANDS
+#' 
 package require Tcl 8.6
 package provide tclinstall 0.1
 namespace eval ::tclinstall { 
@@ -74,10 +82,11 @@ namespace eval ::tclinstall {
     set script [info script]
 }
 
-proc ::tclinstall::usage {} {
-    puts "Usage: $::argv0 ? DIRECTORY | SETUPFILE] ZIPFILE?"
-}
 
+#' **tclinstall::help**
+#' 
+#' Prints the extended help page to the terminal.
+#' 
 proc ::tclinstall::help {} {
     variable script
     if [catch {open $script r} infh] {
@@ -103,27 +112,12 @@ proc ::tclinstall::help {} {
         close $infh
     }
 }
-proc ::tclinstall::parseArgs {argv} {
-    # TODO: 
-    #   - multiple files
-    #   - https addresses using wget or Python
-    #   - git repos using git
-    if {[llength $argv] == 1 && [file extension [lindex $argv 0]] eq ".zip"} {
-        set setupfile [unzipSetup [lindex $argv 0]]
-        return $setupfile
-    }
-    if {[llength $argv] < 1 && [file tail [lindex $argv 0]] ne "setup.tcl"} {
-        puts "Usage: $::argv0 setup.tcl"
-        puts "where setup.tcl is in the parent folder of the package"
-        exit 0
-    }
-    set setupfile [lindex $argv 0]
-    if {![file exists $setupfile]} {
-        puts "Error: File '$setupfile' does not exists!"
-        exit 0
-    }
-    return $setupfile
-}
+
+#' **tclinstall::install** *setupfile*
+#' 
+#' Installs the package for the given setup file.
+#' 
+
 proc ::tclinstall::install {setupfile} {
     source $setupfile
     set owd [pwd]
@@ -185,7 +179,44 @@ proc ::tclinstall::install {setupfile} {
     cd $owd
 }
 
-proc ::tclinstall::unzipSetup {zipfile} {
+#' **tclinstall::installGit** *pkg url*
+#' 
+#' Install a Tcl package *pkg* for the given *url* using the
+#' *git* terminal application.
+#' 
+#' TODO: implementation
+
+proc ::tclinstall::installGit {pkg url} {
+    set base $pkg
+    # TODO: check for git
+    if {[auto_execok git] eq ""} {
+        error "Git is not found! Please install the git terminal application!"
+    }
+    
+    file mkdir git-install
+    cd git-install
+    set var2 [list git clone $url $base]
+    exec >@stdout 2>@stderr {*}$var2
+    set dir [lindex [glob *] 0]
+    cd $dir
+    set setups [glob -nocomplain setup*.tcl]
+    puts $setups
+    if {[llength $setups] > 0} {
+        foreach setup $setups {
+            ::tclinstall::install $setup
+        }
+    }
+    cd ..
+    cd ..
+}    
+
+#' **tclinstall::installZip** *zipfile*
+#' 
+#' Install Tcl package from the given Zip file. If a URL is
+#' given one of the executables *curl*, *wget* or *python* mustg be available.
+#  Windows 10: curl.exe --output index.html --url https://superuser.com
+
+proc ::tclinstall::installZip {zipfile} {
     # TODO: check for package
     # if not available use Python ur unzip
     package require zipfile::decode
@@ -206,6 +237,12 @@ proc ::tclinstall::unzipSetup {zipfile} {
     }
 }
 
+#' **tclinstall::main** *argv*
+#' 
+#' Main entry point for the given arguments in argv. 
+#' Usually the argv are the command line options for the
+#' application.
+#' 
 proc ::tclinstall::main {argv} {
     if {"-h" in $argv || "--help" in $argv} {
         ::tclinstall::help 
@@ -217,5 +254,42 @@ proc ::tclinstall::main {argv} {
         tclinstall::install $setupfile
     }
 }
+
+#'
+#' **tclinstall::parseArgs *argv*
+#' 
+#' Do the command line parsing for the given command line arguments in *argv*..
+#' 
+proc ::tclinstall::parseArgs {argv} {
+    # TODO: 
+    #   - multiple files
+    #   - https addresses using wget or Python
+    #   - git repos using git
+    if {[llength $argv] == 1 && [file extension [lindex $argv 0]] eq ".zip"} {
+        set setupfile [unzipSetup [lindex $argv 0]]
+        return $setupfile
+    }
+    if {[llength $argv] < 1 && [file tail [lindex $argv 0]] ne "setup.tcl"} {
+        puts "Usage: $::argv0 setup.tcl"
+        puts "where setup.tcl is in the parent folder of the package"
+        exit 0
+    }
+    set setupfile [lindex $argv 0]
+    if {![file exists $setupfile]} {
+        puts "Error: File '$setupfile' does not exists!"
+        exit 0
+    }
+    return $setupfile
+}
+
+
+#' **tclinstall::usage**
+#' 
+#' Prints the usage line for the terminal installer to the terminal.
+#' 
+proc ::tclinstall::usage {} {
+    puts "Usage: $::argv0 ? DIRECTORY | SETUPFILE] ZIPFILE?"
+}
+
 
 
