@@ -4,7 +4,7 @@
 #' title: Install Tcl packages 
 #' author: Detlef Groth, Caputh-Schwielowsee
 #' license: BSD 3
-#' date: <230131.0651>
+#' date: <230131.0923>
 #' ---
 #' 
 #' # NAME
@@ -164,7 +164,8 @@ proc ::tclinstall::install {setupfile} {
     if {[regexp -nocase {^ye?s?} $answer]} {
         file mkdir $targetdir
         foreach file $files {
-            set nfile [regsub "$setup(name)" $file $targetdir]
+            set name [regsub -all {\+} $setup(name) {\\+}]
+            set nfile [regsub "$name" $file $targetdir]
             file copy $file $nfile
         }
     } else {
