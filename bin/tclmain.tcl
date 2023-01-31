@@ -24,7 +24,8 @@
 #' license:                BSD-3-Clause license
 #' 
 
-
+# to avoid later trouble with some Itcl derived packages
+catch { package require Itcl }
 
 namespace eval ::tclmain { 
     # check if in parent folder or in parent/lib are Tcl packages and
@@ -145,8 +146,10 @@ proc ::tclmain::parseArgs {} {
                  puts "Available commands are: [join $cmds ,]"
              }
          }
-    }
+     }
+
 }
 if {[info script] eq $argv0} {
     ::tclmain::parseArgs
 }
+
