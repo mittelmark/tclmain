@@ -23,6 +23,7 @@ Here is an example on how to execute programs or get help pages by a user or dev
 
 * `tclmain` - gives the help message
 * `tclmain -h, --help` - gives the help message
+* `tclmain -i, --info` - gives information about a Tcl package
 * `tclmain -m, --module pkgname` - lists the available commands for the package `pkgname`
 * `tclmain -p, --package pkgname` - lists the available commands for the package `pkgname`
 * `tclmain -p pkgname main` - executes the file ending with `_main.tcl` within the package directory
