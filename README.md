@@ -142,6 +142,10 @@ This is the output:
 
 ![](img/kroki4tcl-api.png)
 
+If all Tcl packages would have a file with under-help or underline-api at the
+end we would always be able to query the documentation in the same manner ... just dreaming ...
+
+
 ## TODO's
 
 - main as default mode, but how to distinguis between command and arguments?
