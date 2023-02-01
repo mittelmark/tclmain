@@ -117,6 +117,31 @@ You should then see the following window:
 
 Obviously you could have the same effect if you would place the files in the config folder
 
+## Packages with Tclmain support
+
+I started adding for some packages inbuild Tclmain support. More packages will follow, here are the links:
+
+* [tclinstall](https://github.com/mittelmark/tclmain/lib/tclinstall) - installer package, commands `main` and `help`
+* [kroki4tcl](https://github.com/mittelmark/kroki4tcl) - commands `main` and `api`
+* [yeti](https://github.com/mittelmark/yeti) - commands `help` for yeti and ylex (showing the help pages)
+
+Here is an example session for kroki4tcl:
+
+```
+$ tclmain -i kroki4tcl
+package:  kroki4tcl
+version:  0.4.0
+location: /home/groth/.local/lib/kroki4tcl
+$ tclmain -m kroki4tcl 
+Missing command for package kroki4tcl.
+Available commands are: main,api
+$ tclmain -m kroki4tcl api | less -r
+```
+
+This is the output:
+
+![](img/kroki4tcl-api.png)
+
 ## TODO's
 
 - main as default mode, but how to distinguis between command and arguments?
