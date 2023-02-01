@@ -11,7 +11,7 @@ The Tcl script `tclmain.tcl` does a similar thing. As usually for standalone scr
 
 * currently only Linux/Unix systems are supported
 * you only need a single file
-* download the file [tclmain.tcl](tclmain.tcl) (you need to press raw to get the file)
+* download the file [tclmain.tcl](bin/tclmain.tcl) (you need to press raw to get the file)
 * make it executable using the `chmod` command
 * rename it to `tclmain` and move it to a folder belonging to your `PATH` variable, I place mine into `~/.local/bin`
 * check the installation by writing `tclmain` in your terminal where you should see the help page
