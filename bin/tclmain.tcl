@@ -115,7 +115,7 @@ proc ::tclmain::parseArgs {} {
         if {[llength $files] > 0} {
              foreach f $files {
                  set cmd [regsub {.+_([a-z0-9]{2,6}).[tclm]{2,3}} $f "\\1"]
-                 if {$cmd in [list help demo main] || [string length $cmd] <= 3} {
+                 if {$cmd in [list help demo main install] || [string length $cmd] <= 8} {
                      if {![info exists src($cmd)]} {
                          set argv0 $f
                          lappend cmds $cmd

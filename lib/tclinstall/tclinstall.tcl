@@ -4,7 +4,7 @@
 #' title: Install Tcl packages 
 #' author: Detlef Groth, Caputh-Schwielowsee
 #' license: BSD 3
-#' date: <230202.0842>
+#' date: <230202.1228>
 #' ---
 #' 
 #' # NAME
@@ -125,7 +125,9 @@ proc ::tclinstall::install {setupfile} {
     set files [list]
     foreach f $setup(include) {
         foreach file [glob -nocomplain $f] {
-            lappend files $file
+            if {[string range $file end end] ne "~"} {
+                lappend files $file
+            }
         }
     }
     if {[llength $files] < 1} {
@@ -255,7 +257,7 @@ proc ::tclinstall::installFolder {folder} {
                         puts "$pkg\t$version"
                         set t [regsub {__pkg__} $template $pkg]
                         set t [regsub {__version__} $t $version]
-                        set t [regsub {__folder__} $t [file dirname $f]]
+                        set t [regsub -all {__folder__} $t [file dirname $f]]
                         break
                     }
                 }
@@ -285,21 +287,42 @@ proc ::tclinstall::installFolder {folder} {
 proc ::tclinstall::installZip {zipfile} {
     # TODO: check for package
     # if not available use Python ur unzip
-    package require zipfile::decode
-    ::zipfile::decode::open $zipfile
-    set archiveDict [::zipfile::decode::archive]
-    ::zipfile::decode::unzip $archiveDict setup-tcl
-    ::zipfile::decode::close
-    set setup [glob -nocomplain setup-tcl/setup.tcl]
+    set unzipped false
+    catch {
+        package require zipfile::decode
+        ::zipfile::decode::open $zipfile
+        set archiveDict [::zipfile::decode::archive]
+        ::zipfile::decode::unzip $archiveDict setup-tcl
+        ::zipfile::decode::close
+        set unzipped true
+        set setup [glob -nocomplain setup-tcl/setup*.tcl]
+        
+    } 
+    if {!$unzipped} {
+        set unzip [auto_execok unzip]
+        if {$unzip eq ""} {
+            error "Error: Either unzip executable or tklib package zipfile must be installed!"
+        }
+        mkdir setup-tcl
+        exec unzip $zipfile -d setup-tcl
+        set setup [glob -nocomplain setup-tcl/setup*.tcl]
+    }
     if {[llength $setup] == 0} {
-        set setup [glob -nocomplain setup-tcl/*/setup.tcl]
+        set setup [glob -nocomplain setup-tcl/*/setup*.tcl]
     }
     if {[llength $setup] > 0} {
         # TODO: multiple files in zip
         puts "setupfound in zip [lindex $setup 0]"
-        return $setup
+        foreach f $setup {
+            tclinstall::tclinstall $f
+        }
     } else {
-        return [list]
+        puts "no setup found"
+        set folders [glob -nocomplain setup-tcl/*] 
+        foreach folder $folders {
+            puts "installing $folder"
+            tclinstall::installFolder $folder
+        }
     }
 }
 
@@ -319,6 +342,8 @@ proc ::tclinstall::main {argv} {
     foreach setupfile $setupfiles {
         if {[file isdirectory $setupfile]} {
             tclinstall::installFolder $setupfile
+        } elseif {[file extension $setupfile] in [list .zip .Zip .ZIP]} {
+            tclinstall::installZip $setupfile
         } else {
             tclinstall::install $setupfile
         }
@@ -335,21 +360,18 @@ proc ::tclinstall::parseArgs {argv} {
     #   - multiple files
     #   - https addresses using wget or Python
     #   - git repos using git
-    if {[llength $argv] == 1 && [file extension [lindex $argv 0]] eq ".zip"} {
-        set setupfile [unzipSetup [lindex $argv 0]]
-        return $setupfile
-    }
     if {[llength $argv] < 1 && [file tail [lindex $argv 0]] ne "setup.tcl"} {
         puts "Usage: $::argv0 setup.tcl"
         puts "where setup.tcl is in the parent folder of the package"
         exit 0
     }
-    set setupfile [lindex $argv 0]
-    if {![file exists $setupfile]} {
-        puts "Error: File '$setupfile' does not exists!"
-        exit 0
+    set setupfiles $argv
+    foreach setupfile $setupfiles {
+        if {![file exists $setupfile]} {
+            error "Error: File '$setupfile' does not exists!"
+        }
     }
-    return $setupfile
+    return $setupfiles
 }
 
 
