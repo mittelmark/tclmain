@@ -4,7 +4,7 @@
 #' title: Install Tcl packages 
 #' author: Detlef Groth, Caputh-Schwielowsee
 #' license: BSD 3
-#' date: <230131.0923>
+#' date: <230202.0842>
 #' ---
 #' 
 #' # NAME
@@ -76,7 +76,7 @@
 #' ## COMMANDS
 #' 
 package require Tcl 8.6
-package provide tclinstall 0.1
+package provide tclinstall 0.2
 namespace eval ::tclinstall { 
     variable script 
     set script [info script]
@@ -143,8 +143,8 @@ proc ::tclinstall::install {setupfile} {
     }
     
     # TODO: Do platform specific checks, windows, osx etc.!
-    
-    set targetdir [file join $::env(HOME) .local lib $setup(name)]
+    set libdir [file join $::env(HOME) .local lib]
+    set targetdir [file join $libdir $setup(name)]
     puts -nonewline "Install these files into $targetdir (yes|no): " 
     flush stdout
 
@@ -165,8 +165,11 @@ proc ::tclinstall::install {setupfile} {
         file mkdir $targetdir
         foreach file $files {
             set name [regsub -all {\+} $setup(name) {\\+}]
-            set nfile [regsub "$name" $file $targetdir]
-            file copy $file $nfile
+            set nfile [file join $libdir $file]
+            # remove non library path
+            set idx [string first $name $nfile]
+            set nfile [string range $nfile $idx end]
+            file copy $file [file join $libdir $nfile]
         }
     } else {
         puts "Installation canceled!"
@@ -177,6 +180,9 @@ proc ::tclinstall::install {setupfile} {
     package require $setup(name)
     
     puts "Success: package $setup(name) [package present $setup(name)] is installed!"  
+    if {[package version Tk] ne ""} {
+        catch { destroy . }
+    }
     cd $owd
 }
 
@@ -193,7 +199,9 @@ proc ::tclinstall::installGit {pkg url} {
     if {[auto_execok git] eq ""} {
         error "Git is not found! Please install the git terminal application!"
     }
-    
+    if {[file isdirectory git-install]} {
+        file delete -force git-install
+    }
     file mkdir git-install
     cd git-install
     set var2 [list git clone $url $base]
@@ -209,8 +217,65 @@ proc ::tclinstall::installGit {pkg url} {
     }
     cd ..
     cd ..
+    file delete -force git-install
 }    
 
+#' **tclinstall::installFolder** *folder*
+#' 
+#' Install a Tcl package *pkg* from the given *folder* which should
+#' contain a `pkgIndex.tcl` file.
+#' 
+
+proc ::tclinstall::installFolder {folder} {
+    set template {
+        array set setup {
+            name __pkg__   
+            version __version__
+            url UNKNOWN
+            author UNKNOWN
+            license UNKNOWN
+            include __folder__/*
+        }
+    }
+
+    set files [glob -nocomplain $folder/pkgIndex.tcl]
+    if {[llength $files] == 0} {
+        set files [glob -nocomplain $folder/*/pkgIndex.tcl]
+    }
+    if {[llength $files]> 0} {
+        foreach f $files {
+            if [catch {open $f r} infh] {
+                puts stderr "Cannot open $f: $infh"
+                exit
+            } else {
+                set t ""
+                while {[gets $infh line] >= 0} {
+                    set folder [file tail [file dirname $f]]
+                    if {[regexp {^\s*package\s+ifneeded\s+([^\s]+)\s+([0-9\.]+)} $line -> pkg version]} {
+                        puts "$pkg\t$version"
+                        set t [regsub {__pkg__} $template $pkg]
+                        set t [regsub {__version__} $t $version]
+                        set t [regsub {__folder__} $t [file dirname $f]]
+                        break
+                    }
+                }
+                close $infh
+                if {$t ne ""} {
+                    set out [open setup-${pkg}.tcl w 0600]
+                    puts $out $t
+                    close $out
+                    puts $t
+                    
+                    tclinstall::install setup-${pkg}.tcl
+                    file delete setup-${pkg}.tcl
+                } else {
+                    puts "no package if needed found in $f"
+                }
+            }
+        }
+    }
+    #puts $files
+}
 #' **tclinstall::installZip** *zipfile*
 #' 
 #' Install Tcl package from the given Zip file. If a URL is
@@ -252,7 +317,11 @@ proc ::tclinstall::main {argv} {
         
     set setupfiles [tclinstall::parseArgs $argv]
     foreach setupfile $setupfiles {
-        tclinstall::install $setupfile
+        if {[file isdirectory $setupfile]} {
+            tclinstall::installFolder $setupfile
+        } else {
+            tclinstall::install $setupfile
+        }
     }
 }
 
@@ -293,4 +362,9 @@ proc ::tclinstall::usage {} {
 }
 
 
+
+# Links: 
+#
+# - https://core.tcl-lang.org/tips/doc/trunk/tip/55.md
+# - https://github.com/bef/tpkg
 

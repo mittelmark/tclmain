@@ -8,7 +8,7 @@
 # tclmain -m tclinstall path-to/lib/setup-tclinstall.tcl
 array set setup {
    name tclinstall   
-   version 0.1
+   version 0.2.0
    url https://github.com/mittelmark/tclmain/lib/tclinstall
    author {Detlef Groth}
    license {BSD 3.0}
