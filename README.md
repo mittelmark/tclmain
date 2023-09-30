@@ -2,15 +2,48 @@
 
 Standalone script to run Tcl applications from packages using the - `tclmain -m pkgname` - syntax.
 
-This Tcl application provides a facility to run Tcl applications, display help pages and show demo applications
-for Tcl packages, similar like the Python `__main__.py` file is doing this for a Python package. 
-In Python, if your provide a file `__main__.py` within your package, you can exectute this file directly using the syntax: `python -m pkgname`.
-The Tcl script `tclmain.tcl` does a similar thing. As usually for standalone scripts scripts the file extension will be removed, I will below use its name as `tclmain`.
+This Tcl application provides a facility to run Tcl applications, display help
+pages and show demo  applications  for Tcl  packages,  similar like the Python
+`__main__.py`  file is doing  this for a Python  package.  In  Python, if your
+provide a file  `__main__.py`  within your package, you can exectute this file
+directly  using the syntax: `python -m pkgname`. The Tcl script  `tclmain.tcl`
+does a similar  thing. As usually  for  standalone  scripts  scripts  the file
+extension will be removed, I will below use its name as `tclmain`.
+
+In  addition  to this Python like  approach  providing  separate  files in the
+package  itself,  since version 0.2.0  (2023-09-30) it is as well supported to
+call a main function in the form of `package::main argv`. Here an example of such
+an implementation:
+
+```tcl
+package provide testx 0.0.1
+
+namespace eval testx { }
+
+proc testx::hello {name} {
+    puts "Hello ${name}!"
+}   
+
+proc testx::main {{argv {}} {
+    if {[llength $argv] != 1} {
+        puts "Usage: tclmain -m testx NAME"
+    } else {
+        testx::hello [lindex $argv 0]
+    }   
+}
+```
+
+So the only thing a package  writer  needs to make it  runnable  directly as an
+application using `tclmain` is to provide this main function  within the `namespace`  which must
+have the same name as the  package  itself  and  getting  only the argv as the
+first and only argument with a default of an empty list.
 
 ## Installation
 
 * currently only Linux/Unix systems are supported
-* you only need a single file
+* in principle  the approach  should work on Windows as well, but I can't test
+  it properly
+* you only need a single file for using the tclmain approach
 * download the file [tclmain.tcl](bin/tclmain.tcl) (you need to press raw to get the file)
 * make it executable using the `chmod` command
 * rename it to `tclmain` and move it to a folder belonging to your `PATH` variable, I place mine into `~/.local/bin`
