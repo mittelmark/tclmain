@@ -2,7 +2,7 @@
 # This file should be named executable using chmod and renamed to tclmain
 # moved thereafter to a folder belonging to your PATH variable
 # 
-#' usage: tclmain [-h] [-m pkgname command ?arg1 arg2 ...?]
+#' usage: tclmain [-h|-v] [-m|-p pkgname command ?arg1 arg2 ...?]
 #'                [-i pkgname]
 #' 
 #' Running Tcl application directly from packages.
@@ -18,14 +18,15 @@
 #'   -m, --module          run the given command in the Tcl package `pkgname`
 #'   -p, --package         handled like options -m, --main
 #'   -i, --info
+#'   
 #' 
 #' author:                 Detlef Groth, Schwielowsee, Germany
 #'
 #' license:                BSD-3-Clause license
 #' 
-
-# to avoid later trouble with some Itcl derived packages
-catch { package require Itcl }
+#' version:                0.2.0
+#' 
+package provide tclmain 0.2.0
 
 namespace eval ::tclmain { 
     # check if in parent folder or in parent/lib are Tcl packages and
@@ -84,6 +85,10 @@ proc ::tclmain::parseArgs {} {
         puts -nonewline [::tclmain::usage [info script]]
         exit 0
     }
+    if {[llength $argv] == 1 && [lindex $argv 0] in [list "-v" "--version"]} {
+        puts "tclmain.tcl version: [package provide tclmain]"
+        exit 0
+    }
     if {[llength $argv] > 1 && [lindex $argv 0] in [list "-m" "--module" "-p" "--package" "-i" "--info"]} {
         catch {
             set stat(version) [package require [lindex $argv 1]]
@@ -125,7 +130,14 @@ proc ::tclmain::parseArgs {} {
              }
          }
          if {[llength $cmds] == 0} {
-             puts "Package $stat(package) provides no commands.\n"
+             ## check main function in package
+             set package [lindex $argv 1]
+             if {[info commands ::${package}::main] ne ""} {
+                 if {[info args ${package}::main] eq "argv"} {
+                     ::${package}::main [lrange $argv 2 end]
+                     return
+                 }
+             }
          } else {
              if {[llength $argv] == 2} {
                  puts "Missing command for package $stat(package)."
@@ -146,10 +158,8 @@ proc ::tclmain::parseArgs {} {
                  puts "Available commands are: [join $cmds ,]"
              }
          }
-     }
-
+    }
 }
 if {[info script] eq $argv0} {
-    ::tclmain::parseArgs
+    ::tclmain::parseArgs 
 }
-
