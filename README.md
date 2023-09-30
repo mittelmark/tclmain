@@ -15,22 +15,36 @@ package  itself,  since version 0.2.0  (2023-09-30) it is as well supported to
 call a main function in the form of `package::main argv`. Here an example of such
 an implementation:
 
-```tcl
+```{.tcl}
 package provide testx 0.0.1
 
-namespace eval testx { }
+namespace eval ::testx { }
 
-proc testx::hello {name} {
+proc ::testx::hello {name} {
     puts "Hello ${name}!"
 }   
 
-proc testx::main {{argv {}} {
+proc ::testx::main {{argv {}}} {
     if {[llength $argv] != 1} {
         puts "Usage: tclmain -m testx NAME"
     } else {
         testx::hello [lindex $argv 0]
     }   
 }
+```
+
+Here an example session:
+
+```
+[tclmain]$ export TCLLIBPATH=.
+[tclmain]$ tclsh bin/tclmain.tcl -i testx 
+package:  testx
+version:  0.0.1
+location: ./examples
+[tclmain]$ tclsh bin/tclmain.tcl -m testx 
+Usage: tclmain -m testx NAME
+[tclmain]$ tclsh bin/tclmain.tcl -m testx  Tclmain
+Hello Tclmain!
 ```
 
 So the only thing a package  writer  needs to make it  runnable  directly as an
