@@ -1,7 +1,7 @@
 ---
 title: Tclmain - running Tcl applications directly from package folders
 author: Detlef Groth, University of Potsdam, Germany
-date: 2023-10-01 12:36
+date: 2023-10-01 13:06
 header-includes: 
 - | 
     ```{=html}
@@ -36,15 +36,16 @@ the terminal.
 ## Introduction
 
 Package developers  sometimes would like to target both Tcl developers and end
-users to use the developed code. The Tcl developer usually utilize  procedures
+users to use the developed code. The Tcl developers usually utilize  procedures
 or classes and their  methods  provided in the package  code whereas end users
-utilizes often the package code directly using  applications,  either terminal application
-or using graphical  interfaces. Until now the application and the package code
-usually have to exists in two different files, the application code usually is
+using the package code by applications,  either terminal based ones 
+or applications with graphical  interfaces. Until now the application and the package code
+usually have to exists in two different files in two different folders, the application code usually is
 moved  to a  folder  belonging  to the  PATH  variable  and the  package  code
-belonging  is moved the a folder  belonging to a path which is part of the Tcl
-`auto_path` variable. Figure 1 illustrates this concept.
+is moved to a folder belonging to a path which is part of the Tcl
+`auto_path` variable. The following figure illustrates this concept.
 
+<center>
 ```{.kroki dia=plantuml echo=false}
 digraph g {
     node[style="filled",fillcolor=salmon,shape=rect,height=0.7,width=1.2]
@@ -59,13 +60,16 @@ digraph g {
 
 }
 ```
+**Figure: Usual layout of dual purpose Tcl-code providing Tcl package code and
+application code.
+</center>
 
-Since Tcl 8.5  version  the package  code can be as well  delivered  in as single
-file with the extension `.tm`, as Tcl module thereby removing the necessity of
-a pkgIndex.tcl  file, but still requiring the split of package and application
-code.
+Although, since Tcl 8.5  version  the package  code can be as well  delivered  in a single
+file with the extension `.tm`, as Tcl module, thereby removing the necessity of
+a `pkgIndex.tcl`  file, it stills requires the split of package and application
+code into two different folders.
 
-Often Tcl developers add at the end of the package code a check if the package
+During development Tcl coders often add at the end of the package code a check if the package
 is directly execute with the Tcl interpreter like this:
 
 ```{.tcl eval=true}
@@ -102,24 +106,26 @@ puts "Hello hello!"
 ```
 
 You can see, that we can  combine  package  code and  application  code easily
-within  the same file.  However  to install  both  functionalities  we have to
+within  the same file.  However  to install  both  functionalities on our system we have to
 create at least two  separate  files, one for the package code and one for the
 application code where the first code goes into files in a folder belonging to
 the Tcl library  paths, the latter, the  application  code, is going to a file
 located in a folder belonging to the PATH variable. Although it would be still
 possible to execute the file directly without this split, but only if the user
-would know where in all the Tcl  library  folders is the  application  code is
-located.
+would know where in all the Tcl library  folders is the  application  code is
+located. If we move the file to a folder  belonging  to the PATH  variable  we
+could in contrast not use it as a Tcl package.
 
-Python  programmers  can  avoid  this  split by  placing a file  `__main__.py`
-directly within the package and placing the application code therein. The user
+Python  programmers  have a  workaround  for this  situation.  They can  avoid
+this  problem by  placing a file  `__main__.py`
+directly within the package and adding the application code therein. The user
 can then execute this file by writing  `python -m pkgname` in the terminal. To
 given an  example  just call  `python3 -m pip` in your  terminal  and you have
 access to the Python  package  manager. On my machine  currently are 80 Python
 packages installed which provide these `__main__.py` files.
 
 
-Aim: The goal of the tclmain  application  is to provide the Tcl package  code and
+Aim: The goal of the tclmain  application is to provide the Tcl package  code and
 the application utilizing the package code within the package code itself. Users should
 be then able to call the  application  even  without  an  installation  of the
 application  code in folders belonging to the PATH  variable. The  application
@@ -173,17 +179,17 @@ if {[info exists ::argv0] && [info script] eq $argv0} {
 ```
 
 The  advantage of this approach is that the developer has not to create a new
-file, the file can be still called  directly  using `tclsh  pkgname.tcl  args`
+file, the file can be still called  directly  using `tclsh  pkgname.tcl args`
 syntax as well after  installation using the `tclmain -m pkgname args` syntax.
 An other  advantage is that the main  procedure is now part of the package and
-can be documented  within the package as well and can be as well utilized from
+can be documented  within the package and can be as well utilized from
 other Tcl code  directly by calling the main  function  with the argv list or
 with other, developer created lists.
 
-The  disadvantage of this approach is that  without  loading  the  package the Tcl
-interpreter  would not know exactly  which of all the packages  provides  this
-functionality. You could for instance just search for all file which ends with
-`_main.tcl` to find the Tcl applications within package.
+The disadvantage of this approach is that  without  loading  the  package the Tcl
+interpreter  would not know exactly  which of all the packages  provide  this
+functionality. You could for instance just search for all files ending with
+`_main.tcl` to find the Tcl applications within your installed packages.
 
 ### The main file approach
 
