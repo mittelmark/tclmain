@@ -2,6 +2,8 @@
 
 Standalone script to run Tcl applications from packages using the - `tclmain -m pkgname` - syntax.
 
+* [Background information](https://htmlpreview.github.io/?https://raw.githubusercontent.com/mittelmark/tclmain/master/doc/tclmain.html)
+
 This Tcl application provides a facility to run Tcl applications, display help
 pages and show demo  applications  for Tcl  packages,  similar like the Python
 `__main__.py`  file is doing  this for a Python  package.  In  Python, if your
