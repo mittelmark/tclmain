@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8"/>
+<meta content="pandoc" name="generator"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
+<meta content="Detlef Groth, University of Potsdam, Germany" name="author"/>
+<title>Tclmain - running Tcl applications directly from package folders</title>
+<style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+<link href="data:text/css,%0A%20%20%20%20html%20%7B%0A%20%20%20%20%20%20%20%20overflow-y%3A%20scroll%3B%0A%20%20%20%20%7D%0A%20%20%20%20body%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%23444%3B%0A%20%20%20%20%20%20%20%20font-family%3A%20Georgia%2C%20Palatino%2C%20%27Palatino%20Linotype%27%2C%20Times%2C%20%27Times%20New%20Roman%27%2C%20serif%3B%0A%20%20%20%20%20%20%20%20line-height%3A%201.2%3B%0A%20%20%20%20%20%20%20%20padding%3A%201em%3B%0A%20%20%20%20%20%20%20%20margin%3A%20auto%3B%0A%20%20%20%20%20%20%20%20max-width%3A%20%201100px%3B%0A%20%20%20%20%7D%0A%20%20%20%20h1%2C%20h2%2C%20h3%2C%20h4%2C%20h5%2C%20h6%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%23111%3B%0A%20%20%20%20%20%20%20%20line-height%3A%20115%25%3B%0A%20%20%20%20%20%20%20%20margin-top%3A%201em%3B%0A%20%20%20%20%20%20%20%20font-weight%3A%20normal%3B%0A%20%20%20%20%7D%0A%20%20%20%20h1%20%7B%0A%20%20%20%20%20%20%20%20text-align%3A%20center%3B%0A%20%20%20%20%7D%0A%20%20%20%20h2.author%2C%20h2.date%20%7B%0A%20%20%20%20%20%20%20%20text-align%3A%20center%3B%0A%20%20%20%20%7D%0A%20%20%20%20a%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%230645ad%3B%0A%20%20%20%20%20%20%20%20text-decoration%3A%20none%3B%0A%20%20%20%20%7D%0A%20%20%20%20a%3Avisited%20%7B%20%20color%3A%20%230b0080%3B%20%7D%0A%20%20%20%20a%3Ahover%20%20%20%7B%20%20color%3A%20%2306e%3B%20%20%20%20%7D%0A%20%20%20%20a%3Aactive%20%20%7B%20%20color%3A%20%23faa700%3B%20%7D%0A%20%20%20%20a%3Afocus%20%20%20%7B%20%20outline%3A%20thin%20dotted%3B%20%7D%0A%20%20%20%20%0A%20%20%20%20p%20%7B%20%20margin%3A%200.5em%200%3B%20%20%20%20%7D%0A%20%20%20%20p.author%2C%20p.date%20%7B%0A%20%20%20%20%20%20%20%20font-size%3A%20110%25%3B%0A%20%20%20%20%20%20%20%20text-align%3A%20center%3B%0A%20%20%20%20%7D%0A%20%20%20%20img%20%7B%20%20max-width%3A%20100%25%3B%20%20%20%20%7D%0A%20%20%20%20figure%20%7B%20text-align%3A%20center%20%3B%20%7D%20%0A%20%20%20%20pre%2C%20blockquote%20pre%20%7B%0A%20%20%20%20%20%20%20%20border-top%3A%200.1em%20%239ac%20solid%3B%0A%20%20%20%20%20%20%20%20background%3A%20%23e9f6ff%3B%0A%20%20%20%20%20%20%20%20padding%3A%2010px%3B%0A%20%20%20%20%20%20%20%20border-bottom%3A%200.1em%20%239ac%20solid%3B%0A%20%20%20%20%7D%0A%20%20%20%20pre%2C%20code%2C%20kbd%2C%20samp%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%23000%3B%0A%20%20%20%20%20%20%20%20font-family%3A%20Monaco%2C%20%27courier%20new%27%2C%20monospace%3B%0A%20%20%20%20%20%20%20%20font-size%3A%2090%25%3B%20%0A%20%20%20%20%7D%0A%20%20%20%20pre%20code.tclinn%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%23ff2222%3B%0A%20%20%20%20%7D%0A%20%20%20%20pre%20code.tclout%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%233366ff%3B%0A%20%20%20%20%7D%0A%20%20%20%20code.r%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%23770000%3B%0A%20%20%20%20%7D%0A%20%20%20%20pre.pipeout%20%7B%0A%20%20%20%20%20%20%20%20background%3A%20%23ffefef%3B%0A%20%20%20%20%7D%0A%20%20%20%20pre%20%7B%0A%20%20%20%20%20%20%20%20white-space%3A%20pre%3B%0A%20%20%20%20%20%20%20%20white-space%3A%20pre-wrap%3B%0A%20%20%20%20%20%20%20%20word-wrap%3A%20break-word%3B%0A%20%20%20%20%7D%0A%20%20%20%20code%20span.kw%20%7B%20color%3A%20%23007020%3B%20font-weight%3A%20normal%3B%20%7D%0A%20%20%20%20pre.sourceCode%20%7B%20%20background%3A%20%23fff6f6%3B%20%20%7D%20%0A%20%20%20%20blockquote%20%7B%0A%20%20%20%20%20%20%20%20margin%3A%200%3B%0A%20%20%20%20%20%20%20%20padding-left%3A%203em%3B%20%0A%20%20%20%20%7D%0A%20%20%20%20hr%20%7B%0A%20%20%20%20%20%20%20%20display%3A%20block%3B%0A%20%20%20%20%20%20%20%20height%3A%202px%3B%0A%20%20%20%20%20%20%20%20border%3A%200%3B%0A%20%20%20%20%20%20%20%20border-top%3A%201px%20solid%20%23aaa%3B%0A%20%20%20%20%20%20%20%20border-bottom%3A%201px%20solid%20%23eee%3B%0A%20%20%20%20%20%20%20%20margin%3A%201em%200%3B%0A%20%20%20%20%20%20%20%20padding%3A%200%3B%0A%20%20%20%20%7D%0A%20%20%20%20table%20%7B%20%20%20%20%0A%20%20%20%20%20%20%20%20border-collapse%3A%20collapse%3B%0A%20%20%20%20%20%20%20%20border-bottom%3A%202px%20solid%3B%0A%20%20%20%20%7D%0A%20%20%20%20table%20thead%20tr%20th%20%7B%20%0A%20%20%20%20%20%20%20%20background-color%3A%20%23fde9d9%3B%0A%20%20%20%20%20%20%20%20text-align%3A%20left%3B%20%0A%20%20%20%20%20%20%20%20padding%3A%2010px%3B%0A%20%20%20%20%20%20%20%20border-top%3A%202px%20solid%3B%0A%20%20%20%20%20%20%20%20border-bottom%3A%202px%20solid%3B%0A%20%20%20%20%7D%0A%20%20%20%20table%20td%20%7B%20%0A%20%20%20%20%20%20%20%20background-color%3A%20%23fff9e9%3B%0A%20%20%20%20%20%20%20%20text-align%3A%20left%3B%20%0A%20%20%20%20%20%20%20%20padding%3A%2010px%3B%0A%20%20%20%20%7D%0A%0A" rel="stylesheet"/><!--URL:pandoc-filter.css-->
+<!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+<style>
+  body { max-width: 1000px; font-size: 120%; }
+  pre { background: rgb(250,229,211); padding: 8px; }
+  pre.sourceCode, pre.py { 
+      background: #eeeeee; 
+      padding: 8px;
+      font-size: 95%;
+  }
+  .code-title {
+    background: #dddddd;
+    padding: 8px;
+  } 
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Tclmain - running Tcl applications directly from package folders</h1>
+<p class="author">Detlef Groth, University of Potsdam, Germany</p>
+<p class="date">2023-10-01 12:36</p>
+</header>
+<h2 id="abstract">Abstract</h2>
+<p>The application tclmain allows the developer to embed Tcl application directly within Tcl packages without the need to split application and package into two different folders. Tcl packages can be made applications by providing a procedure <code>pkgname::main {{argv {}}} { code }</code> which can be then utilized with the <code>tclmain</code> application using the syntax <code>tclmain -p pkgname</code> directly from the terminal.</p>
+<h2 id="introduction">Introduction</h2>
+<p>Package developers sometimes would like to target both Tcl developers and end users to use the developed code. The Tcl developer usually utilize procedures or classes and their methods provided in the package code whereas end users utilizes often the package code directly using applications, either terminal application or using graphical interfaces. Until now the application and the package code usually have to exists in two different files, the application code usually is moved to a folder belonging to the PATH variable and the package code belonging is moved the a folder belonging to a path which is part of the Tcl <code>auto_path</code> variable. Figure 1 illustrates this concept.</p>
+<p></p>
+<p><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPgo8IS0tIEdlbmVyYXRlZCBieSBncmFwaHZpeiB2ZXJzaW9uIDkuMC4wICgyMDIzMDkxMS4xODI3KQogLS0+CjwhLS0gVGl0bGU6IGcgUGFnZXM6IDEgLS0+Cjxzdmcgd2lkdGg9IjIyOHB0IiBoZWlnaHQ9IjMxOHB0Igogdmlld0JveD0iMC4wMCAwLjAwIDIyOC4xMiAzMTcuNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgo8ZyBpZD0iZ3JhcGgwIiBjbGFzcz0iZ3JhcGgiIHRyYW5zZm9ybT0ic2NhbGUoMSAxKSByb3RhdGUoMCkgdHJhbnNsYXRlKDQgMzEzLjYpIj4KPHRpdGxlPmc8L3RpdGxlPgo8cG9seWdvbiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJub25lIiBwb2ludHM9Ii00LDQgLTQsLTMxMy42IDIyNC4xMiwtMzEzLjYgMjI0LjEyLDQgLTQsNCIvPgo8IS0tIFRjbGNvZGUgLS0+CjxnIGlkPSJub2RlMSIgY2xhc3M9Im5vZGUiPgo8dGl0bGU+VGNsY29kZTwvdGl0bGU+Cjxwb2x5Z29uIGZpbGw9InNhbG1vbiIgc3Ryb2tlPSJibGFjayIgcG9pbnRzPSIxNTYuNDUsLTMwOS42IDcwLjA1LC0zMDkuNiA3MC4wNSwtMjU5LjIgMTU2LjQ1LC0yNTkuMiAxNTYuNDUsLTMwOS42Ii8+Cjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjExMy4yNSIgeT0iLTI3OS43MiIgZm9udC1mYW1pbHk9IlRpbWVzLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIj5UY2xjb2RlPC90ZXh0Pgo8L2c+CjwhLS0gcGFja2FnZSAtLT4KPGcgaWQ9Im5vZGUyIiBjbGFzcz0ibm9kZSI+Cjx0aXRsZT5wYWNrYWdlPC90aXRsZT4KPHBvbHlnb24gZmlsbD0ic2FsbW9uIiBzdHJva2U9ImJsYWNrIiBwb2ludHM9IjEwMi40NSwtMjIzLjIgMTYuMDUsLTIyMy4yIDE2LjA1LC0xNzIuOCAxMDIuNDUsLTE3Mi44IDEwMi40NSwtMjIzLjIiLz4KPHRleHQgdGV4dC1hbmNob3I9Im1pZGRsZSIgeD0iNTkuMjUiIHk9Ii0xOTMuMzIiIGZvbnQtZmFtaWx5PSJUaW1lcyxzZXJpZiIgZm9udC1zaXplPSIxNC4wMCI+cGFja2FnZTwvdGV4dD4KPC9nPgo8IS0tIFRjbGNvZGUmIzQ1OyZndDtwYWNrYWdlIC0tPgo8ZyBpZD0iZWRnZTEiIGNsYXNzPSJlZGdlIj4KPHRpdGxlPlRjbGNvZGUmIzQ1OyZndDtwYWNrYWdlPC90aXRsZT4KPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSJibGFjayIgZD0iTTk3LjYzLC0yNTguOTlDOTIuNDcsLTI1MC45MiA4Ni42MywtMjQxLjggODEuMDksLTIzMy4xNCIvPgo8cG9seWdvbiBmaWxsPSJibGFjayIgc3Ryb2tlPSJibGFjayIgcG9pbnRzPSI4NC4xNywtMjMxLjQ2IDc1Ljg0LC0yMjQuOTIgNzguMjgsLTIzNS4yMyA4NC4xNywtMjMxLjQ2Ii8+CjwvZz4KPCEtLSBhcHBsaWNhdGlvbiAtLT4KPGcgaWQ9Im5vZGU0IiBjbGFzcz0ibm9kZSI+Cjx0aXRsZT5hcHBsaWNhdGlvbjwvdGl0bGU+Cjxwb2x5Z29uIGZpbGw9InNhbG1vbiIgc3Ryb2tlPSJibGFjayIgcG9pbnRzPSIyMTYuNjIsLTIyMy4yIDEyMS44OCwtMjIzLjIgMTIxLjg4LC0xNzIuOCAyMTYuNjIsLTE3Mi44IDIxNi42MiwtMjIzLjIiLz4KPHRleHQgdGV4dC1hbmNob3I9Im1pZGRsZSIgeD0iMTY5LjI1IiB5PSItMTkzLjMyIiBmb250LWZhbWlseT0iVGltZXMsc2VyaWYiIGZvbnQtc2l6ZT0iMTQuMDAiPmFwcGxpY2F0aW9uPC90ZXh0Pgo8L2c+CjwhLS0gVGNsY29kZSYjNDU7Jmd0O2FwcGxpY2F0aW9uIC0tPgo8ZyBpZD0iZWRnZTMiIGNsYXNzPSJlZGdlIj4KPHRpdGxlPlRjbGNvZGUmIzQ1OyZndDthcHBsaWNhdGlvbjwvdGl0bGU+CjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIGQ9Ik0xMjkuNDUsLTI1OC45OUMxMzQuOCwtMjUwLjkyIDE0MC44NSwtMjQxLjggMTQ2LjYsLTIzMy4xNCIvPgo8cG9seWdvbiBmaWxsPSJibGFjayIgc3Ryb2tlPSJibGFjayIgcG9pbnRzPSIxNDkuNDUsLTIzNS4xOCAxNTIuMDYsLTIyNC45MSAxNDMuNjEsLTIzMS4zMSAxNDkuNDUsLTIzNS4xOCIvPgo8L2c+CjwhLS0gbGliIC0tPgo8ZyBpZD0ibm9kZTMiIGNsYXNzPSJub2RlIj4KPHRpdGxlPmxpYjwvdGl0bGU+Cjxwb2x5Z29uIGZpbGw9InNhbG1vbiIgc3Ryb2tlPSJibGFjayIgcG9pbnRzPSIxMDAuNDUsLTEzNi44IDE0LjA1LC0xMzYuOCAxNC4wNSwtODYuNCAxMDAuNDUsLTg2LjQgMTAwLjQ1LC0xMzYuOCIvPgo8dGV4dCB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSI1Ny4yNSIgeT0iLTExNS41NSIgZm9udC1mYW1pbHk9IlRpbWVzLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIj5saWI8L3RleHQ+Cjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjU3LjI1IiB5PSItOTguMyIgZm9udC1mYW1pbHk9IlRpbWVzLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIj5mb2xkZXI8L3RleHQ+CjwvZz4KPCEtLSBwYWNrYWdlJiM0NTsmZ3Q7bGliIC0tPgo8ZyBpZD0iZWRnZTIiIGNsYXNzPSJlZGdlIj4KPHRpdGxlPnBhY2thZ2UmIzQ1OyZndDtsaWI8L3RpdGxlPgo8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9ImJsYWNrIiBkPSJNNTguNjcsLTE3Mi41OUM1OC40OSwtMTY1LjEzIDU4LjMsLTE1Ni43NyA1OC4xMSwtMTQ4LjciLz4KPHBvbHlnb24gZmlsbD0iYmxhY2siIHN0cm9rZT0iYmxhY2siIHBvaW50cz0iNjEuNjEsLTE0OC42OCA1Ny44NywtMTM4Ljc2IDU0LjYxLC0xNDguODQgNjEuNjEsLTE0OC42OCIvPgo8L2c+CjwhLS0gbGliY29kZSAtLT4KPGcgaWQ9Im5vZGU3IiBjbGFzcz0ibm9kZSI+Cjx0aXRsZT5saWJjb2RlPC90aXRsZT4KPHBvbHlnb24gZmlsbD0ic2FsbW9uIiBzdHJva2U9ImJsYWNrIiBwb2ludHM9IjEwNC41LC01MC40IDAsLTUwLjQgMCwwIDEwNC41LDAgMTA0LjUsLTUwLjQiLz4KPHRleHQgdGV4dC1hbmNob3I9Im1pZGRsZSIgeD0iNTIuMjUiIHk9Ii0yOS4xNSIgZm9udC1mYW1pbHk9IlRpbWVzLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIj5wa2dJbmRleC50Y2w8L3RleHQ+Cjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjUyLjI1IiB5PSItMTEuOSIgZm9udC1mYW1pbHk9IlRpbWVzLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIj5wa2djb2RlLnRjbDwvdGV4dD4KPC9nPgo8IS0tIGxpYiYjNDU7Jmd0O2xpYmNvZGUgLS0+CjxnIGlkPSJlZGdlNiIgY2xhc3M9ImVkZ2UiPgo8dGl0bGU+bGliJiM0NTsmZ3Q7bGliY29kZTwvdGl0bGU+CjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIGQ9Ik01NS44LC04Ni4xOUM1NS4zNiwtNzguNzMgNTQuODcsLTcwLjM3IDU0LjM5LC02Mi4zIi8+Cjxwb2x5Z29uIGZpbGw9ImJsYWNrIiBzdHJva2U9ImJsYWNrIiBwb2ludHM9IjU3Ljg5LC02Mi4xNCA1My44LC01Mi4zNiA1MC45LC02Mi41NSA1Ny44OSwtNjIuMTQiLz4KPC9nPgo8IS0tIGJpbiAtLT4KPGcgaWQ9Im5vZGU1IiBjbGFzcz0ibm9kZSI+Cjx0aXRsZT5iaW48L3RpdGxlPgo8cG9seWdvbiBmaWxsPSJzYWxtb24iIHN0cm9rZT0iYmxhY2siIHBvaW50cz0iMjEzLjQ1LC0xMzYuOCAxMjcuMDUsLTEzNi44IDEyNy4wNSwtODYuNCAyMTMuNDUsLTg2LjQgMjEzLjQ1LC0xMzYuOCIvPgo8dGV4dCB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIxNzAuMjUiIHk9Ii0xMTUuNTUiIGZvbnQtZmFtaWx5PSJUaW1lcyxzZXJpZiIgZm9udC1zaXplPSIxNC4wMCI+YmluPC90ZXh0Pgo8dGV4dCB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIxNzAuMjUiIHk9Ii05OC4zIiBmb250LWZhbWlseT0iVGltZXMsc2VyaWYiIGZvbnQtc2l6ZT0iMTQuMDAiPmZvbGRlcjwvdGV4dD4KPC9nPgo8IS0tIGFwcGxpY2F0aW9uJiM0NTsmZ3Q7YmluIC0tPgo8ZyBpZD0iZWRnZTQiIGNsYXNzPSJlZGdlIj4KPHRpdGxlPmFwcGxpY2F0aW9uJiM0NTsmZ3Q7YmluPC90aXRsZT4KPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSJibGFjayIgZD0iTTE2OS41NCwtMTcyLjU5QzE2OS42MywtMTY1LjEzIDE2OS43MywtMTU2Ljc3IDE2OS44MiwtMTQ4LjciLz4KPHBvbHlnb24gZmlsbD0iYmxhY2siIHN0cm9rZT0iYmxhY2siIHBvaW50cz0iMTczLjMyLC0xNDguOCAxNjkuOTQsLTEzOC43NiAxNjYuMzIsLTE0OC43MiAxNzMuMzIsLTE0OC44Ii8+CjwvZz4KPCEtLSBhcHAgLS0+CjxnIGlkPSJub2RlNiIgY2xhc3M9Im5vZGUiPgo8dGl0bGU+YXBwPC90aXRsZT4KPHBvbHlnb24gZmlsbD0ic2FsbW9uIiBzdHJva2U9ImJsYWNrIiBwb2ludHM9IjIyMC4xMiwtNTAuNCAxMjIuMzgsLTUwLjQgMTIyLjM4LDAgMjIwLjEyLDAgMjIwLjEyLC01MC40Ii8+Cjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjE3MS4yNSIgeT0iLTIwLjUzIiBmb250LWZhbWlseT0iVGltZXMsc2VyaWYiIGZvbnQtc2l6ZT0iMTQuMDAiPmFwcGNvZGUudGNsPC90ZXh0Pgo8L2c+CjwhLS0gYmluJiM0NTsmZ3Q7YXBwIC0tPgo8ZyBpZD0iZWRnZTUiIGNsYXNzPSJlZGdlIj4KPHRpdGxlPmJpbiYjNDU7Jmd0O2FwcDwvdGl0bGU+CjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIGQ9Ik0xNzAuNTQsLTg2LjE5QzE3MC42MywtNzguNzMgMTcwLjczLC03MC4zNyAxNzAuODIsLTYyLjMiLz4KPHBvbHlnb24gZmlsbD0iYmxhY2siIHN0cm9rZT0iYmxhY2siIHBvaW50cz0iMTc0LjMyLC02Mi40IDE3MC45NCwtNTIuMzYgMTY3LjMyLC02Mi4zMiAxNzQuMzIsLTYyLjQiLz4KPC9nPgo8L2c+Cjwvc3ZnPgo="/><!--URL:/home/groth/workspace/tclmain/doc/images/kroki-1.svg--></p>
+<p>Since Tcl 8.5 version the package code can be as well delivered in as single file with the extension <code>.tm</code>, as Tcl module thereby removing the necessity of a pkgIndex.tcl file, but still requiring the split of package and application code.</p>
+<p>Often Tcl developers add at the end of the package code a check if the package is directly execute with the Tcl interpreter like this:</p>
+<div class="sourceCode" data-eval="true" id="cb1"><pre class="sourceCode tcl"><code class="sourceCode tcl"><span id="cb1-1"><a aria-hidden="true" href="#cb1-1" tabindex="-1"></a><span class="co">#!/usr/bin/env tclsh</span></span>
+<span id="cb1-2"><a aria-hidden="true" href="#cb1-2" tabindex="-1"></a><span class="kw">package</span> <span class="ot">provide</span> testx <span class="dv">0</span>.<span class="fl">0.1</span></span>
+<span id="cb1-3"><a aria-hidden="true" href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a aria-hidden="true" href="#cb1-4" tabindex="-1"></a><span class="co">## package code</span></span>
+<span id="cb1-5"><a aria-hidden="true" href="#cb1-5" tabindex="-1"></a><span class="kw">namespace</span> <span class="kw">eval</span> ::testx <span class="kw">{</span> <span class="kw">}</span></span>
+<span id="cb1-6"><a aria-hidden="true" href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a aria-hidden="true" href="#cb1-7" tabindex="-1"></a><span class="kw">proc</span> ::testx::hello <span class="kw">{</span><span class="ot">name</span><span class="kw">}</span> <span class="kw">{</span></span>
+<span id="cb1-8"><a aria-hidden="true" href="#cb1-8" tabindex="-1"></a>    <span class="kw">puts</span> <span class="st">"Hello </span><span class="dt">$</span><span class="st">{name}!"</span></span>
+<span id="cb1-9"><a aria-hidden="true" href="#cb1-9" tabindex="-1"></a><span class="kw">}</span>   </span>
+<span id="cb1-10"><a aria-hidden="true" href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a aria-hidden="true" href="#cb1-11" tabindex="-1"></a><span class="co">## application code</span></span>
+<span id="cb1-12"><a aria-hidden="true" href="#cb1-12" tabindex="-1"></a><span class="kw">if</span> <span class="kw">{[info</span> <span class="ot">exists</span> ::argv0<span class="kw">]</span> &amp;&amp; <span class="kw">[info</span> <span class="ot">script</span><span class="kw">]</span> eq <span class="dt">$argv0</span><span class="kw">}</span> <span class="kw">{</span></span>
+<span id="cb1-13"><a aria-hidden="true" href="#cb1-13" tabindex="-1"></a>    <span class="kw">if</span> <span class="kw">{[llength</span> <span class="dt">$argv</span><span class="kw">]</span> == <span class="dv">1</span><span class="kw">}</span> <span class="kw">{</span></span>
+<span id="cb1-14"><a aria-hidden="true" href="#cb1-14" tabindex="-1"></a>        ::testx::hello <span class="kw">[lindex</span> <span class="dt">$argv</span> <span class="dv">0</span><span class="kw">]</span></span>
+<span id="cb1-15"><a aria-hidden="true" href="#cb1-15" tabindex="-1"></a>    <span class="kw">}</span> <span class="kw">else</span> <span class="kw">{</span></span>
+<span id="cb1-16"><a aria-hidden="true" href="#cb1-16" tabindex="-1"></a>        <span class="kw">puts</span> <span class="st">"Usage: [info script] message"</span></span>
+<span id="cb1-17"><a aria-hidden="true" href="#cb1-17" tabindex="-1"></a>    <span class="kw">}</span></span>
+<span id="cb1-18"><a aria-hidden="true" href="#cb1-18" tabindex="-1"></a><span class="kw">}</span>   </span></code></pre></div>
+<p>If we run this file testx.tcl like this <code>tclsh testx.tcl</code> we get this:</p>
+<p></p>
+<pre class="tclout" data-echo="false" data-eval="true"><code>Usage: testx.tcl message
+</code></pre>
+<p>If we run add an argument like this <code>tclsh testx.tcl hello</code> we get this:</p>
+<p></p>
+<pre class="tclout" data-echo="false" data-eval="true"><code>Hello hello!
+</code></pre>
+<p>You can see, that we can combine package code and application code easily within the same file. However to install both functionalities we have to create at least two separate files, one for the package code and one for the application code where the first code goes into files in a folder belonging to the Tcl library paths, the latter, the application code, is going to a file located in a folder belonging to the PATH variable. Although it would be still possible to execute the file directly without this split, but only if the user would know where in all the Tcl library folders is the application code is located.</p>
+<p>Python programmers can avoid this split by placing a file <code>__main__.py</code> directly within the package and placing the application code therein. The user can then execute this file by writing <code>python -m pkgname</code> in the terminal. To given an example just call <code>python3 -m pip</code> in your terminal and you have access to the Python package manager. On my machine currently are 80 Python packages installed which provide these <code>__main__.py</code> files.</p>
+<p>Aim: The goal of the tclmain application is to provide the Tcl package code and the application utilizing the package code within the package code itself. Users should be then able to call the application even without an installation of the application code in folders belonging to the PATH variable. The application should be then callable using the syntax <code>tclmain -m pkgname</code> or <code>tclmain -p pkgname</code>. Both the -m and the -p options should do the same thing and can be seen as aliases for (m)odule and (p)ackage.</p>
+<h2 id="implementation">Implementation</h2>
+<p>There are two possible ways to add this functionality to your Tcl packages, one is by providing additional files in your package code folder which follow the <code>pkgname_main.tcl</code> syntax, the other by providing a Tcl main-procedure with argv as the only possible argument, where the default for argv is an empty list.</p>
+<h3 id="the-main-procedure-approach">The main procedure approach</h3>
+<p>Here an example how the testx.tcl file from above could be modified to be callable directly or using tclmain.</p>
+<p></p>
+<div class="sourceCode" data-eval="true" id="cb4"><pre class="sourceCode tcl"><code class="sourceCode tcl"><span id="cb4-1"><a aria-hidden="true" href="#cb4-1" tabindex="-1"></a><span class="co">#!/usr/bin/env tclsh</span></span>
+<span id="cb4-2"><a aria-hidden="true" href="#cb4-2" tabindex="-1"></a><span class="kw">package</span> <span class="ot">provide</span> testx <span class="dv">0</span>.<span class="fl">0.2</span></span>
+<span id="cb4-3"><a aria-hidden="true" href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a aria-hidden="true" href="#cb4-4" tabindex="-1"></a><span class="co">## package code</span></span>
+<span id="cb4-5"><a aria-hidden="true" href="#cb4-5" tabindex="-1"></a><span class="kw">namespace</span> <span class="kw">eval</span> ::testx <span class="kw">{</span> <span class="kw">}</span></span>
+<span id="cb4-6"><a aria-hidden="true" href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a aria-hidden="true" href="#cb4-7" tabindex="-1"></a><span class="kw">proc</span> ::testx::hello <span class="kw">{</span><span class="ot">name</span><span class="kw">}</span> <span class="kw">{</span></span>
+<span id="cb4-8"><a aria-hidden="true" href="#cb4-8" tabindex="-1"></a>    <span class="kw">puts</span> <span class="st">"Hello </span><span class="dt">$</span><span class="st">{name}!"</span></span>
+<span id="cb4-9"><a aria-hidden="true" href="#cb4-9" tabindex="-1"></a><span class="kw">}</span>   </span>
+<span id="cb4-10"><a aria-hidden="true" href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a aria-hidden="true" href="#cb4-11" tabindex="-1"></a><span class="co">## make it callable using tclmain -m pkgname</span></span>
+<span id="cb4-12"><a aria-hidden="true" href="#cb4-12" tabindex="-1"></a><span class="co">## the argument argv must be declared exactly like here</span></span>
+<span id="cb4-13"><a aria-hidden="true" href="#cb4-13" tabindex="-1"></a><span class="kw">proc</span> ::testx::main <span class="kw">{{argv</span> <span class="kw">{}}}</span> <span class="kw">{</span></span>
+<span id="cb4-14"><a aria-hidden="true" href="#cb4-14" tabindex="-1"></a>    <span class="kw">if</span> <span class="kw">{[llength</span> <span class="dt">$argv</span><span class="kw">]</span> == <span class="dv">1</span><span class="kw">}</span> <span class="kw">{</span></span>
+<span id="cb4-15"><a aria-hidden="true" href="#cb4-15" tabindex="-1"></a>        ::testx::hello <span class="kw">[lindex</span> <span class="dt">$argv</span> <span class="dv">0</span><span class="kw">]</span></span>
+<span id="cb4-16"><a aria-hidden="true" href="#cb4-16" tabindex="-1"></a>    <span class="kw">}</span> <span class="kw">else</span> <span class="kw">{</span></span>
+<span id="cb4-17"><a aria-hidden="true" href="#cb4-17" tabindex="-1"></a>        <span class="kw">puts</span> <span class="st">"Usage: [info script] message"</span></span>
+<span id="cb4-18"><a aria-hidden="true" href="#cb4-18" tabindex="-1"></a>    <span class="kw">}</span></span>
+<span id="cb4-19"><a aria-hidden="true" href="#cb4-19" tabindex="-1"></a><span class="kw">}</span>   </span>
+<span id="cb4-20"><a aria-hidden="true" href="#cb4-20" tabindex="-1"></a><span class="co">## application code allowing to call the file still directly</span></span>
+<span id="cb4-21"><a aria-hidden="true" href="#cb4-21" tabindex="-1"></a><span class="co">## using tclsh testx.tcl args ... syntax</span></span>
+<span id="cb4-22"><a aria-hidden="true" href="#cb4-22" tabindex="-1"></a><span class="kw">if</span> <span class="kw">{[info</span> <span class="ot">exists</span> ::argv0<span class="kw">]</span> &amp;&amp; <span class="kw">[info</span> <span class="ot">script</span><span class="kw">]</span> eq <span class="dt">$argv0</span><span class="kw">}</span> <span class="kw">{</span></span>
+<span id="cb4-23"><a aria-hidden="true" href="#cb4-23" tabindex="-1"></a>    ::testx::main <span class="dt">$argv</span></span>
+<span id="cb4-24"><a aria-hidden="true" href="#cb4-24" tabindex="-1"></a><span class="kw">}</span>   </span></code></pre></div>
+<p>The advantage of this approach is that the developer has not to create a new file, the file can be still called directly using <code>tclsh  pkgname.tcl  args</code> syntax as well after installation using the <code>tclmain -m pkgname args</code> syntax. An other advantage is that the main procedure is now part of the package and can be documented within the package as well and can be as well utilized from other Tcl code directly by calling the main function with the argv list or with other, developer created lists.</p>
+<p>The disadvantage of this approach is that without loading the package the Tcl interpreter would not know exactly which of all the packages provides this functionality. You could for instance just search for all file which ends with <code>_main.tcl</code> to find the Tcl applications within package.</p>
+<h3 id="the-main-file-approach">The main file approach</h3>
+<p>This file based approach places the application code within the package folder but into a separate file which has the filename prefix of the package followed by an underline and then a short lowercase string usually main, but as well other short names such as help, api etc are possible.</p>
+<p>For our testx example we could then just create a file <code>testx_main.tcl</code> with the following content:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode tcl"><code class="sourceCode tcl"><span id="cb5-1"><a aria-hidden="true" href="#cb5-1" tabindex="-1"></a><span class="co">### file testx_main.tcl</span></span>
+<span id="cb5-2"><a aria-hidden="true" href="#cb5-2" tabindex="-1"></a><span class="kw">package</span> <span class="ot">require</span> testx</span>
+<span id="cb5-3"><a aria-hidden="true" href="#cb5-3" tabindex="-1"></a>testx::main <span class="dt">$argv</span></span></code></pre></div>
+<p>We could as well remove the main function from the package and place the application code directly here. I would however prefer to keep the application code short and keep the main procedure as part of the package and not the application.</p>
+<p>The main-file approach has the advantage that even without loading the package code and checking for the presence of a <code>pkgname::main</code> procedure with the empty argv argument as default we can check for the existence of these underline files and know which packages would be executable via the the <code>tclmain -m pkgname</code> call syntax.</p>
+<h2 id="installation-of-tclmain">Installation of tclmain</h2>
+<p>The Tcl script is a single file which can be downloaded directly from Github. The following example would install the script into a users PATH - <code>~/.local/bin</code></p>
+<pre><code>wget https://raw.githubusercontent.com/mittelmark/tclmain/main/bin/tclmain.tcl
+mv tclmain.tcl tclmain
+chmod 755 tclmain
+mv tclmain ~/.local/bin</code></pre>
+<p>You could then check if the application is installed by writing <code>tclmain -h</code> on the terminal.</p>
+<h2 id="summary">Summary</h2>
+<p>The tclmain application simplifies distribution of Tcl applications still being part of packages, without the need to install additional application code within folders belonging to the users PATH variable. If the users can install the package he has the application callable via <code>tclmain -p pkgname</code>.</p>
+</body>
+</html><!--Generated by HTMLArk 2023-10-01 12:40:23.743456. Original URL tclmain.html-->
