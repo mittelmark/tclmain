@@ -1,7 +1,7 @@
 ---
 title: Tclmain - running Tcl applications directly from package folders
 author: Detlef Groth, University of Potsdam, Germany
-date: 2023-10-01 13:06
+date: 2023-10-01 13:11
 header-includes: 
 - | 
     ```{=html}
@@ -60,8 +60,7 @@ digraph g {
 
 }
 ```
-**Figure: Usual layout of dual purpose Tcl-code providing Tcl package code and
-application code.
+**Figure:** Usual layout of dual purpose Tcl-code providing Tcl package code and application code.
 </center>
 
 Although, since Tcl 8.5  version  the package  code can be as well  delivered  in a single
