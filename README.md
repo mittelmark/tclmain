@@ -1,6 +1,7 @@
-# tclmain
+# tclmain - Tcl 8.6 / Tcl 9.0
 
-Standalone script to run Tcl applications from packages using the - `tclmain -m pkgname` - syntax.
+Standalone  script to run Tcl applications  from packages using the - 
+`tclmain -m pkgname` - syntax for Tcl 8.6 and 9.0.
 
 * [Background information](https://htmlpreview.github.io/?https://raw.githubusercontent.com/mittelmark/tclmain/master/doc/tclmain.html)
 
