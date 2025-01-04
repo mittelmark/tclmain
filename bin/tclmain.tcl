@@ -24,9 +24,9 @@
 #'
 #' license:                BSD-3-Clause license
 #' 
-#' version:                0.2.0
+#' version:                0.2.1
 #' 
-package provide tclmain 0.2.0
+package provide tclmain 0.2.1
 
 namespace eval ::tclmain { 
     # check if in parent folder or in parent/lib are Tcl packages and
